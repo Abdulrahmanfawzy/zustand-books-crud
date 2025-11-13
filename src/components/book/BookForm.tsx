@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { validation } from "../../helper/validation";
-import { IBook } from "../../types/book.type";
 import { useAppStore } from "../../store";
 
 const inputStyles =
@@ -9,9 +8,10 @@ const inputStyles =
 const BookForm = () => {
   const { addBook, bookUpdate, updateBookInBooksArr, editBook } = useAppStore();
 
-  const [inputVal, setInputVal] = useState<
-    Omit<IBook, "price"> & { price: string | number; id: number | null }
-  >({
+  const [inputVal, setInputVal] = useState<{
+    price: string | number;
+    id: number | null;
+  }>({
     id: Date.now(),
     title: "",
     price: "",

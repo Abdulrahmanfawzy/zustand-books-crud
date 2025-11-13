@@ -1,4 +1,3 @@
-import { StateCreator } from "zustand";
 import type { IBook } from "../../types/book.type";
 
 export interface IBookSlice {
@@ -12,7 +11,7 @@ export interface IBookSlice {
   updateBookInBooksArr: (updatedBook: IBook) => void;
 }
 
-export const bookSlice: StateCreator<IBookSlice> = (set, get) => ({
+export const bookSlice = (set, get) => ({
   books: [],
   book: null,
   bookUpdate: null,
