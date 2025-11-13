@@ -1,12 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { validation } from "../../helper/validation";
+import { IBook } from "../../types/book.type";
 import { useAppStore } from "../../store";
 
 const inputStyles =
   "w-full py-2 px-2 border-2 border-gray-300 rounded-lg outline-0 duration-300 focus:border-blue-600";
 
 const BookForm = () => {
-  const [inputVal, setInputVal] = useState({
+  const { addBook, bookUpdate, updateBookInBooksArr, editBook } = useAppStore();
+
+  const [inputVal, setInputVal] = useState<
+    Omit<IBook, "price"> & { price: string | number; id: number | null }
+  >({
     id: Date.now(),
     title: "",
     price: "",
@@ -17,29 +22,47 @@ const BookForm = () => {
     price: "",
     desc: "",
   });
-  const { addBook } = useAppStore();
+
+  useEffect(() => {
+    if (bookUpdate) {
+      setInputVal({
+        id: bookUpdate.id,
+        title: bookUpdate.title,
+        price: bookUpdate.price,
+        desc: bookUpdate.desc,
+      });
+    }
+  }, [bookUpdate]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     key: string
   ) => {
-    setInputVal((prev) => ({ ...prev, id: Date.now(), [key]: e.target.value }));
+    setInputVal((prev) => ({ ...prev, [key]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleAddBook = () => {
     if (validation(inputVal, setErrors)) {
-      addBook(inputVal);
+      addBook({ ...inputVal, id: Date.now(), price: Number(inputVal.price) });
       setInputVal({ id: null, title: "", price: "", desc: "" });
     }
   };
 
+  const handleUpdateBook = () => {
+    if (validation(inputVal, setErrors)) {
+      updateBookInBooksArr({
+        ...inputVal,
+        id: inputVal.id as number,
+        price: Number(inputVal.price),
+      });
+      editBook(null);
+      setInputVal({ id: null, title: "", price: "", desc: "" });
+      setErrors({ title: "", price: "", desc: "" });
+    }
+  };
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="w-[60%] text-gray-600 mx-auto my-10"
-    >
+    <form className="w-[60%] text-gray-600 mx-auto my-10">
       <div className="mb-2">
         <label htmlFor="title">Title</label>
         <input
@@ -72,9 +95,23 @@ const BookForm = () => {
         ></textarea>
         {errors.desc && <span className="text-red-500">{errors.desc}</span>}
       </div>
-      <button className="cursor-pointer w-full py-2.5 uppercase text-center bg-blue-600 rounded-md font-bold text-white text-sm">
-        Add Book
-      </button>
+      {bookUpdate ? (
+        <button
+          onClick={handleUpdateBook}
+          type="button"
+          className="cursor-pointer w-full py-2.5 uppercase text-center bg-yellow-400 rounded-md font-bold text-white text-sm"
+        >
+          update Book
+        </button>
+      ) : (
+        <button
+          onClick={handleAddBook}
+          type="button"
+          className="cursor-pointer w-full py-2.5 uppercase text-center bg-blue-600 rounded-md font-bold text-white text-sm"
+        >
+          Add Book
+        </button>
+      )}
     </form>
   );
 };

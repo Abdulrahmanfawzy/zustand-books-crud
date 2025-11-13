@@ -4,14 +4,18 @@ import type { IBook } from "../../types/book.type";
 const buttonStyles = `py-2 px-4 cursor-pointer rounded-md text-white text-sm`;
 
 const BookItem = ({ book }: { book: IBook }) => {
-  const { readBook, deleteBook } = useAppStore();
+  const { readBook, deleteBook, editBook } = useAppStore();
 
   const getBook = () => {
-    console.log(readBook(book));
+    readBook(book);
   };
 
   const deleteSpecificBook = () => {
     deleteBook(book.id);
+  };
+
+  const editSpecificBook = () => {
+    editBook(book);
   };
 
   return (
@@ -21,7 +25,12 @@ const BookItem = ({ book }: { book: IBook }) => {
         <button onClick={getBook} className={`${buttonStyles} bg-blue-600`}>
           Read
         </button>
-        <button className={`${buttonStyles} bg-yellow-400`}>Edit</button>
+        <button
+          onClick={editSpecificBook}
+          className={`${buttonStyles} bg-yellow-400`}
+        >
+          Edit
+        </button>
         <button
           onClick={deleteSpecificBook}
           className={`${buttonStyles} bg-red-600`}
