@@ -1,27 +1,33 @@
 import { useState, useEffect } from "react";
-import { validation } from "../../helper/validation";
-import { useAppStore } from "../../store";
+import { validation } from "@/helper/validation";
+import { useAppStore } from "@/store";
+import type { Book } from "@/types";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { Button } from "../ui/button";
 
 const inputStyles =
   "w-full py-2 px-2 border-2 border-gray-300 rounded-lg outline-0 duration-300 focus:border-blue-600";
 
+type BookFormState = Omit<Book, "price" | "id"> & {
+  id: number | null;
+  price: string | number;
+};
+
+type FormErrors = Partial<Record<keyof Omit<Book, "id">, string>>;
+
 const BookForm = () => {
   const { addBook, bookUpdate, updateBookInBooksArr, editBook } = useAppStore();
 
-  const [inputVal, setInputVal] = useState<{
-    price: string | number;
-    id: number | null;
-  }>({
-    id: Date.now(),
+  const initialFormState: BookFormState = {
+    id: null,
     title: "",
     price: "",
     desc: "",
-  });
-  const [errors, setErrors] = useState({
-    title: "",
-    price: "",
-    desc: "",
-  });
+  };
+
+  const [inputVal, setInputVal] = useState<BookFormState>(initialFormState);
+  const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
     if (bookUpdate) {
@@ -31,25 +37,37 @@ const BookForm = () => {
         price: bookUpdate.price,
         desc: bookUpdate.desc,
       });
+    } else {
+      setInputVal(initialFormState);
     }
   }, [bookUpdate]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    key: string
+    key: keyof Omit<BookFormState, "id">
   ) => {
     setInputVal((prev) => ({ ...prev, [key]: e.target.value }));
   };
 
   const handleAddBook = () => {
-    if (validation(inputVal, setErrors)) {
+    if (
+      validation(
+        inputVal,
+        setErrors as React.Dispatch<React.SetStateAction<FormErrors>>
+      )
+    ) {
       addBook({ ...inputVal, id: Date.now(), price: Number(inputVal.price) });
       setInputVal({ id: null, title: "", price: "", desc: "" });
     }
   };
 
   const handleUpdateBook = () => {
-    if (validation(inputVal, setErrors)) {
+    if (
+      validation(
+        inputVal,
+        setErrors as React.Dispatch<React.SetStateAction<FormErrors>>
+      )
+    ) {
       updateBookInBooksArr({
         ...inputVal,
         id: inputVal.id as number,
@@ -57,7 +75,7 @@ const BookForm = () => {
       });
       editBook(null);
       setInputVal({ id: null, title: "", price: "", desc: "" });
-      setErrors({ title: "", price: "", desc: "" });
+      setErrors({});
     }
   };
 
@@ -65,53 +83,45 @@ const BookForm = () => {
     <form className="w-[60%] text-gray-600 mx-auto my-10">
       <div className="mb-2">
         <label htmlFor="title">Title</label>
-        <input
+        <Input
           value={inputVal.title}
           onChange={(e) => handleChange(e, "title")}
           type="text"
           id="title"
-          className={inputStyles}
+          className="py-5 mt-1"
         />
         {errors.title && <span className="text-red-500">{errors.title}</span>}
       </div>
       <div className="mb-2">
         <label htmlFor="price">Price</label>
-        <input
+        <Input
           value={inputVal.price}
           type="number"
           onChange={(e) => handleChange(e, "price")}
           id="price"
-          className={inputStyles}
+          className="py-5 mt-1"
         />
         {errors.price && <span className="text-red-500">{errors.price}</span>}
       </div>
       <div className="mb-2">
         <label htmlFor="desc">description</label>
-        <textarea
+        <Textarea
           value={inputVal.desc}
           id="desc"
           onChange={(e) => handleChange(e, "desc")}
-          className={`${inputStyles} h-40`}
-        ></textarea>
+          className={`h-36 mt-1 mb-3`}
+        ></Textarea>
         {errors.desc && <span className="text-red-500">{errors.desc}</span>}
       </div>
-      {bookUpdate ? (
-        <button
-          onClick={handleUpdateBook}
-          type="button"
-          className="cursor-pointer w-full py-2.5 uppercase text-center bg-yellow-400 rounded-md font-bold text-white text-sm"
-        >
-          update Book
-        </button>
-      ) : (
-        <button
-          onClick={handleAddBook}
-          type="button"
-          className="cursor-pointer w-full py-2.5 uppercase text-center bg-blue-600 rounded-md font-bold text-white text-sm"
-        >
-          Add Book
-        </button>
-      )}
+
+      <Button
+        type="button"
+        variant={"default"}
+        className={`w-full cursor-pointer bg-blue-600 hover:bg-gray-50 hover:text-black`}
+        onClick={bookUpdate ? handleUpdateBook : handleAddBook}
+      >
+        {bookUpdate ? "Update Book" : "Add Book"}
+      </Button>
     </form>
   );
 };
