@@ -12,6 +12,7 @@ const App = () => {
         <BookList />
         <BookDetails />
       </div>
+      
     </div>
   );
 };

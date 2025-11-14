@@ -5,6 +5,7 @@ import type { Book } from "@/types";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
+import toast from "react-hot-toast";
 
 const inputStyles =
   "w-full py-2 px-2 border-2 border-gray-300 rounded-lg outline-0 duration-300 focus:border-blue-600";
@@ -58,6 +59,7 @@ const BookForm = () => {
     ) {
       addBook({ ...inputVal, id: Date.now(), price: Number(inputVal.price) });
       setInputVal({ id: null, title: "", price: "", desc: "" });
+      toast.success("Book added successfully");
     }
   };
 
@@ -76,6 +78,7 @@ const BookForm = () => {
       editBook(null);
       setInputVal({ id: null, title: "", price: "", desc: "" });
       setErrors({});
+      toast.success("Book updated successfully");
     }
   };
 
@@ -117,7 +120,9 @@ const BookForm = () => {
       <Button
         type="button"
         variant={"default"}
-        className={`w-full cursor-pointer bg-blue-600 hover:bg-gray-50 hover:text-black`}
+        className={`w-full cursor-pointer ${
+          bookUpdate ? "bg-yellow-400" : "bg-blue-600"
+        } hover:bg-gray-50 hover:text-black`}
         onClick={bookUpdate ? handleUpdateBook : handleAddBook}
       >
         {bookUpdate ? "Update Book" : "Add Book"}
