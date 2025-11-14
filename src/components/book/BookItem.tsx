@@ -1,6 +1,6 @@
+import toast from "react-hot-toast";
 import { useAppStore } from "../../store";
 import type { IBook } from "../../types/book.type";
-import { Button } from "../ui/button";
 
 const buttonStyles = `py-2 px-4 cursor-pointer rounded-md text-white text-sm`;
 
@@ -13,6 +13,7 @@ const BookItem = ({ book }: { book: IBook }) => {
 
   const deleteSpecificBook = () => {
     deleteBook(book.id);
+    toast.success("Book deleted successfully");
   };
 
   const editSpecificBook = () => {
